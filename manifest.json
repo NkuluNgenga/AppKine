@@ -1,0 +1,15 @@
+{
+    "short_name": "KineApp",
+    "name": "Asistente de Kinesiología",
+    "icons": [
+      {
+        "src": "https://cdn-icons-png.flaticon.com/512/3063/3063176.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "theme_color": "#3498db",
+    "background_color": "#ffffff"
+  }
