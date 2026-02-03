@@ -51,17 +51,24 @@ function generarPanelSeleccion() {
     contenedor.innerHTML = ""; 
 
     bibliotecaEjercicios.forEach((ej, index) => {
-        const div = document.createElement('div');
-        div.style.padding = "8px";
-        div.style.borderBottom = "1px solid #eee";
-        div.style.display = "flex";
-        div.style.alignItems = "center";
+        const fila = document.createElement('div');
         
-        div.innerHTML = `
-            <input type="checkbox" id="ej-${index}" value="${index}" class="ej-check" style="width: 20px; height: 20px; margin-right: 12px; cursor: pointer;">
-            <label for="ej-${index}" style="cursor: pointer; flex-grow: 1;">${ej.nombre}</label>
-        `;
-        contenedor.appendChild(div);
+        // Creamos el checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.id = `ej-${index}`;
+        checkbox.value = index;
+        checkbox.className = "ej-check";
+
+        // Creamos la etiqueta
+        const label = document.createElement('label');
+        label.setAttribute("for", `ej-${index}`);
+        label.innerText = ej.nombre;
+
+        // Los unimos
+        fila.appendChild(checkbox);
+        fila.appendChild(label);
+        contenedor.appendChild(fila);
     });
 }
 
