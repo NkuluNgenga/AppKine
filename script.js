@@ -3,7 +3,7 @@ let sessionInterval = null;
 let sistemaActivo = false;
 let rutinaEjercicios = [];
 
-// 1. Biblioteca de 30 Ejercicios (Actualizada según tus indicaciones)
+// 1. Biblioteca de 30 Ejercicios
 const bibliotecaEjercicios = [
     { nombre: "Respiración Diafragmática", info: "Inhale por nariz inflando el abdomen, exhale lento por boca." },
     { nombre: "Expansión Costal", info: "Manos en costillas. Empuje sus manos hacia afuera al inhalar." },
@@ -37,7 +37,6 @@ const bibliotecaEjercicios = [
     { nombre: "Aplauso arriba", info: "Subir brazos y aplaudir sobre la cabeza." }
 ];
 
-// 2. Al cargar la página inicializamos todo
 window.onload = function() {
     generarPanelSeleccion();
     const intervaloGuardado = localStorage.getItem('intervaloKine');
@@ -45,74 +44,59 @@ window.onload = function() {
     actualizarVistaHistorial();
 };
 
-// 3. Generar el panel con checkboxes de forma robusta
 function generarPanelSeleccion() {
     const contenedor = document.getElementById('contenedor-checks');
     contenedor.innerHTML = ""; 
-
     bibliotecaEjercicios.forEach((ej, index) => {
         const fila = document.createElement('div');
-        
-        // Creamos el checkbox
-        const checkbox = document.createElement('input');
-        checkbox.type = "checkbox";
-        checkbox.id = `ej-${index}`;
-        checkbox.value = index;
-        checkbox.className = "ej-check";
-
-        // Creamos la etiqueta
-        const label = document.createElement('label');
-        label.setAttribute("for", `ej-${index}`);
-        label.innerText = ej.nombre;
-
-        // Los unimos
-        fila.appendChild(checkbox);
-        fila.appendChild(label);
+        fila.innerHTML = `
+            <input type="checkbox" id="ej-${index}" value="${index}" class="ej-check">
+            <label for="ej-${index}">${ej.nombre}</label>
+        `;
         contenedor.appendChild(fila);
     });
 }
 
-// 4. Configurar la sesión con los 4 elegidos
 function guardarYConfigurar() {
     const checks = document.querySelectorAll('.ej-check:checked');
     const seleccionados = Array.from(checks);
     
-    if (seleccionados.length !== 4) {
-        alert(`Has seleccionado ${seleccionados.length}. Por favor, selecciona exactamente 4 ejercicios.`);
+    if (seleccionados.length === 0 || seleccionados.length > 4) {
+        alert("Por favor, selecciona entre 1 y 4 ejercicios.");
         return;
     }
 
-    const minutos = parseFloat(document.getElementById('intervalo').value);
-    if (isNaN(minutos) || minutos <= 0) {
-        alert("Ingresa un intervalo de tiempo válido.");
-        return;
-    }
+    const minutosAviso = parseFloat(document.getElementById('intervalo').value);
+    if (isNaN(minutosAviso) || minutosAviso <= 0) return alert("Ingresa un tiempo válido.");
 
-    // Construir rutina
+    // Cálculo: 7 minutos (420 seg) divididos equitativamente
+    const tiempoTotalSesion = 420; 
+    const tiempoPorEjercicio = Math.floor(tiempoTotalSesion / seleccionados.length);
+
     rutinaEjercicios = seleccionados.map(check => {
         const index = parseInt(check.value);
-        return { ...bibliotecaEjercicios[index], tiempo: 105 }; // 1:45 min por ejercicio
+        return { ...bibliotecaEjercicios[index], tiempo: tiempoPorEjercicio };
     });
 
     detenerAlarma();
     sistemaActivo = true;
-    localStorage.setItem('intervaloKine', minutos);
+    localStorage.setItem('intervaloKine', minutosAviso);
 
-    const ms = minutos * 60 * 1000;
+    // 1. Programar recordatorios futuros
+    const ms = minutosAviso * 60 * 1000;
     timer = setInterval(() => { 
         if (sistemaActivo) iniciarSesionCompleta(); 
     }, ms);
 
-    alert("¡Configuración guardada! La sesión se activará automáticamente.");
-    document.getElementById('estado-proxima').innerText = `Estado: ACTIVO (cada ${minutos} min)`;
+    // 2. INICIO INSTANTÁNEO de la primera sesión
+    document.getElementById('estado-proxima').innerText = `Estado: ACTIVO (cada ${minutosAviso} min)`;
+    iniciarSesionCompleta(); 
 }
 
-// 5. Motor de la Sesión de 7 Minutos
 function iniciarSesionCompleta() {
     if (!sistemaActivo) return;
-    
-    // Alerta sonora y visual del sistema para "despertar" al paciente
-    alert("¡Atención! Inicia tu sesión guiada de 7 minutos. Mantén la pantalla encendida.");
+    // Vibración de aviso de inicio
+    if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
     ejecutarPasoRutina(0);
 }
 
@@ -133,10 +117,7 @@ function ejecutarPasoRutina(indice) {
     if (sessionInterval) clearInterval(sessionInterval);
 
     sessionInterval = setInterval(() => {
-        if (!sistemaActivo) { 
-            clearInterval(sessionInterval); 
-            return; 
-        }
+        if (!sistemaActivo) { clearInterval(sessionInterval); return; }
 
         let min = Math.floor(tiempoRestante / 60);
         let seg = tiempoRestante % 60;
@@ -144,7 +125,7 @@ function ejecutarPasoRutina(indice) {
 
         if (tiempoRestante <= 0) {
             clearInterval(sessionInterval);
-            if ("vibrate" in navigator) navigator.vibrate(300); // Vibración de cambio
+            if ("vibrate" in navigator) navigator.vibrate(300);
             ejecutarPasoRutina(indice + 1);
         }
         tiempoRestante--;
@@ -152,29 +133,23 @@ function ejecutarPasoRutina(indice) {
 }
 
 function finalizarSesionTotal() {
-    registrarExito("Sesión de 7m completada");
+    registrarExito(`Sesión de 7m completada`);
     document.getElementById('pantalla-ejercicio').classList.add('hidden');
-    alert("¡Gran trabajo! Has completado tu rutina de hoy.");
+    alert("¡Excelente! Sesión finalizada.");
 }
 
 function detenerAlarma() {
     sistemaActivo = false;
     if (timer) clearInterval(timer);
     if (sessionInterval) clearInterval(sessionInterval);
-    
-    timer = null;
-    sessionInterval = null;
-
     document.getElementById('pantalla-ejercicio').classList.add('hidden');
     document.getElementById('estado-proxima').innerText = "Estado: Detenido";
 }
 
-// 6. Historial de Cumplimiento
 function registrarExito(nombre) {
     let historial = JSON.parse(localStorage.getItem('historialKine')) || [];
     const fecha = new Date();
     const registro = `${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${nombre}`;
-    
     historial.unshift(registro);
     localStorage.setItem('historialKine', JSON.stringify(historial));
     actualizarVistaHistorial();
@@ -187,13 +162,12 @@ function actualizarVistaHistorial() {
 }
 
 function borrarHistorial() {
-    if(confirm("¿Seguro que quieres borrar el historial de progreso?")) {
+    if(confirm("¿Borrar progreso?")) {
         localStorage.removeItem('historialKine');
         actualizarVistaHistorial();
     }
 }
 
-// 7. Registro PWA para instalación
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
