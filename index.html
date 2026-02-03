@@ -13,21 +13,20 @@
         <h1>Mi Asistente de Ejercicios</h1>
         
         <div class="config-section">
-            <label>Avisarme cada (minutos):</label>
-            <input type="number" id="intervalo" value="60">
+            <h3>Configurar Sesión de 7 min</h3>
             
-            <label>Seleccionar Ejercicio:</label>
-            <select id="menu-ejercicios">
-                <option value="">-- Elige un ejercicio --</option>
-                <option value="Respiración Diafragmática">Respiración Diafragmática</option>
-                <option value="Expansión Costal">Expansión Costal</option>
-                <option value="Ciclo Activo">Ciclo Activo (Huff)</option>
-                <option value="Movilidad Torácica">Movilidad Torácica</option>
-            </select>
-
-            <button id="btn-activar" onclick="guardarYConfigurar()">Activar Alarma</button>
+            <label>Avisarme cada (minutos):</label>
+            <input type="number" id="intervalo" value="120">
+            
+            <div id="panel-seleccion" style="margin-top: 15px; text-align: left;">
+                <p><strong>Elegí 4 ejercicios para la rutina:</strong></p>
+                <div id="contenedor-checks" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #fafafa;">
+                    </div>
+            </div>
+        
+            <button id="btn-activar" onclick="guardarYConfigurar()" style="background-color: #27ae60; margin-top: 15px;">Guardar y Activar Rutina</button>
+            <button id="btn-detener" onclick="detenerAlarma()" style="background-color: #e74c3c; margin-top: 10px;">Detener Todo</button>
             <div id="estado-proxima"></div>
-            <button id="btn-detener" onclick="detenerAlarma()" style="background-color: #e74c3c; margin-top: 10px;">Detener Alarmas</button>
         </div>
 
         <div id="pantalla-ejercicio" class="hidden card-alerta">
