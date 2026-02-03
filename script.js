@@ -1,5 +1,6 @@
-let timer = null; // Inicializamos como null explícitamente
+let timer = null; 
 let countdownInterval = null;
+let sistemaActivo = false; // NUEVO: Candado de seguridad
 
 const guiaEjercicios = {
     "Respiración Diafragmática": "Coloque una mano en el pecho y otra en el abdomen. Inhale por la nariz haciendo que el abdomen se eleve.",
@@ -27,48 +28,47 @@ function guardarYConfigurar() {
         return;
     }
 
+    // 1. Limpieza total antes de empezar
+    detenerAlarma(); 
+
     localStorage.setItem('intervalo', minutos);
     localStorage.setItem('ejercicio', nombreSeleccionado);
 
-    // IMPORTANTE: Limpiar cualquier alarma previa antes de iniciar la nueva
-    if (timer) {
-        clearInterval(timer);
-        timer = null;
-    }
-
+    sistemaActivo = true; // ACTIVAMOS EL CANDADO
     const ms = minutos * 60 * 1000;
 
-    // Seteamos el intervalo global
     timer = setInterval(() => {
-        lanzarAlarma(nombreSeleccionado, guiaEjercicios[nombreSeleccionado]);
+        // Solo lanzamos la alarma si el sistema sigue activo
+        if (sistemaActivo) {
+            lanzarAlarma(nombreSeleccionado, guiaEjercicios[nombreSeleccionado]);
+        }
     }, ms);
 
     alert(`Alarma configurada cada ${minutos} minutos.`);
     document.getElementById('estado-proxima').innerText = `Estado: ACTIVO (cada ${minutos} min)`;
 }
 
-// FUNCIÓN CLAVE: Ahora detiene TODO
 function detenerAlarma() {
-    // 1. Frenamos el intervalo principal de las alarmas
+    sistemaActivo = false; // CERRAMOS EL CANDADO INMEDIATAMENTE
+
     if (timer) {
         clearInterval(timer);
         timer = null;
     }
     
-    // 2. Frenamos el cronómetro de los 30 segundos si estaba corriendo
     if (countdownInterval) {
         clearInterval(countdownInterval);
         countdownInterval = null;
     }
 
-    // 3. Limpiamos la interfaz
     document.getElementById('pantalla-ejercicio').classList.add('hidden');
     document.getElementById('estado-proxima').innerText = "Estado: Detenido";
-    
-    alert("Todas las alarmas han sido desactivadas.");
 }
 
 function lanzarAlarma(nombre, info) {
+    // Doble verificación: si se detuvo mientras el intervalo procesaba, salir.
+    if (!sistemaActivo) return;
+
     if ("vibrate" in navigator) {
         navigator.vibrate([500, 200, 500]);
     }
@@ -88,6 +88,12 @@ function iniciarCuentaRegresiva(segundos) {
     if (countdownInterval) clearInterval(countdownInterval);
 
     countdownInterval = setInterval(() => {
+        // Si el sistema se apaga durante la cuenta regresiva, frenar el reloj
+        if (!sistemaActivo) {
+            clearInterval(countdownInterval);
+            return;
+        }
+
         tiempoRestante--;
         display.innerText = `00:${tiempoRestante < 10 ? '0' : ''}${tiempoRestante}`;
 
