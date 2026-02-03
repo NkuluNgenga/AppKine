@@ -1,0 +1,128 @@
+/* Reset general para que se vea bien en móviles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f7;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.app-container {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 { color: #2c3e50; font-size: 1.5rem; }
+h3 { color: #7f8c8d; margin-top: 0; }
+
+label {
+    display: block;
+    text-align: left;
+    margin: 15px 0 5px;
+    font-weight: bold;
+    color: #34495e;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #3498db;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover { background-color: #2980b9; }
+
+.hidden { display: none; }
+
+/* Estilo para la tarjeta que aparece cuando suena la alarma */
+.card-alerta {
+    margin-top: 20px;
+    padding: 20px;
+    border: 2px solid #2ecc71;
+    border-radius: 15px;
+    background-color: #fafff9;
+}
+
+.btn-hecho { background-color: #2ecc71; }
+.btn-hecho:hover { background-color: #27ae60; }
+
+#estado-proxima {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #95a5a6;
+}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #eef2f7;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.app-container {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 360px;
+    width: 100%;
+}
+
+.config-section, .historial-section {
+    padding: 10px;
+}
+
+.hidden { display: none; }
+
+/* Estilo de la lista de historial */
+#lista-historial {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#lista-historial li {
+    background: #fdfdfd;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    border-left: 5px solid #2ecc71;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+.btn-borrar {
+    background-color: #bdc3c7;
+    font-size: 0.7rem;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+/* El resto de tus estilos de botones e inputs se mantienen igual */
+input, select, button { width: 100%; box-sizing: border-box; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; padding: 12px; }
+#cronometro-display { font-size: 2rem; color: #e67e22; margin: 15px; text-align: center; font-weight: bold; }

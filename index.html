@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Rehab App</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <h1>Mi Asistente de Ejercicios</h1>
+        
+        <div class="config-section">
+            <label>Avisarme cada (minutos):</label>
+            <input type="number" id="intervalo" value="60">
+            
+            <label>Seleccionar Ejercicio:</label>
+            <select id="menu-ejercicios">
+                <option value="">-- Elige un ejercicio --</option>
+                <option value="Respiración Diafragmática">Respiración Diafragmática</option>
+                <option value="Expansión Costal">Expansión Costal</option>
+                <option value="Ciclo Activo">Ciclo Activo (Huff)</option>
+                <option value="Movilidad Torácica">Movilidad Torácica</option>
+            </select>
+
+            <button id="btn-activar" onclick="guardarYConfigurar()">Activar Alarma</button>
+            <div id="estado-proxima"></div>
+        </div>
+
+        <div id="pantalla-ejercicio" class="hidden card-alerta">
+            <h2 id="nombre-ejercicio"></h2>
+            <p id="instrucciones"></p>
+            <div id="cronometro-display">00:30</div>
+            <button onclick="finalizarEjercicio()" class="btn-hecho">¡Ejercicio Completado!</button>
+        </div>
+
+        <div class="historial-section">
+            <h3>Mi Progreso Hoy</h3>
+            <ul id="lista-historial">
+                </ul>
+            <button onclick="borrarHistorial()" class="btn-borrar">Limpiar Historial</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
