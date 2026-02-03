@@ -1,7 +1,6 @@
-let timer;
-let countdownInterval;
+let timer = null; // Inicializamos como null explícitamente
+let countdownInterval = null;
 
-// 1. Base de datos de ejercicios e instrucciones
 const guiaEjercicios = {
     "Respiración Diafragmática": "Coloque una mano en el pecho y otra en el abdomen. Inhale por la nariz haciendo que el abdomen se eleve.",
     "Expansión Costal": "Coloque sus manos a los lados de las costillas. Al inhalar, intente empujar sus manos hacia afuera.",
@@ -9,56 +8,66 @@ const guiaEjercicios = {
     "Movilidad Torácica": "Entrelace las manos, estire los brazos hacia arriba mientras inhala profundamente."
 };
 
-// 2. Al cargar la página: Recuperar configuración y cargar historial
 window.onload = function() {
     const intervaloGuardado = localStorage.getItem('intervalo');
     const ejercicioGuardado = localStorage.getItem('ejercicio');
-    
     if (intervaloGuardado && ejercicioGuardado) {
         document.getElementById('intervalo').value = intervaloGuardado;
         document.getElementById('menu-ejercicios').value = ejercicioGuardado;
-        document.getElementById('estado-proxima').innerText = "Configuración recuperada.";
     }
     actualizarVistaHistorial();
 };
 
-// 3. Activar la Alarma
 function guardarYConfigurar() {
     const nombreSeleccionado = document.getElementById('menu-ejercicios').value;
-    const minutos = document.getElementById('intervalo').value;
+    const minutos = parseFloat(document.getElementById('intervalo').value);
 
-    if (nombreSeleccionado === "") {
-        alert("Por favor, selecciona un ejercicio.");
+    if (nombreSeleccionado === "" || isNaN(minutos)) {
+        alert("Por favor, selecciona un ejercicio y un tiempo válido.");
         return;
     }
 
     localStorage.setItem('intervalo', minutos);
     localStorage.setItem('ejercicio', nombreSeleccionado);
 
-    const ms = minutos * 60 * 1000;
-    
-    if (timer) clearInterval(timer);
+    // IMPORTANTE: Limpiar cualquier alarma previa antes de iniciar la nueva
+    if (timer) {
+        clearInterval(timer);
+        timer = null;
+    }
 
+    const ms = minutos * 60 * 1000;
+
+    // Seteamos el intervalo global
     timer = setInterval(() => {
         lanzarAlarma(nombreSeleccionado, guiaEjercicios[nombreSeleccionado]);
     }, ms);
 
-    alert(`Alarma configurada cada ${minutos} minutos. Mantenga la app abierta de fondo.`);
+    alert(`Alarma configurada cada ${minutos} minutos.`);
     document.getElementById('estado-proxima').innerText = `Estado: ACTIVO (cada ${minutos} min)`;
 }
 
-// 4. Detener la Alarma
+// FUNCIÓN CLAVE: Ahora detiene TODO
 function detenerAlarma() {
+    // 1. Frenamos el intervalo principal de las alarmas
     if (timer) {
         clearInterval(timer);
-        clearInterval(countdownInterval);
-        document.getElementById('pantalla-ejercicio').classList.add('hidden');
-        document.getElementById('estado-proxima').innerText = "Estado: Detenido";
-        alert("Alarmas desactivadas.");
+        timer = null;
     }
+    
+    // 2. Frenamos el cronómetro de los 30 segundos si estaba corriendo
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+
+    // 3. Limpiamos la interfaz
+    document.getElementById('pantalla-ejercicio').classList.add('hidden');
+    document.getElementById('estado-proxima').innerText = "Estado: Detenido";
+    
+    alert("Todas las alarmas han sido desactivadas.");
 }
 
-// 5. Mostrar la Alerta de Ejercicio
 function lanzarAlarma(nombre, info) {
     if ("vibrate" in navigator) {
         navigator.vibrate([500, 200, 500]);
@@ -72,7 +81,6 @@ function lanzarAlarma(nombre, info) {
     alert("¡HORA DE TU EJERCICIO!");
 }
 
-// 6. Cronómetro Visual
 function iniciarCuentaRegresiva(segundos) {
     let tiempoRestante = segundos;
     const display = document.getElementById('cronometro-display');
@@ -90,21 +98,24 @@ function iniciarCuentaRegresiva(segundos) {
     }, 1000);
 }
 
-// 7. Finalizar y Registrar en Historial
 function finalizarEjercicio() {
     const nombre = document.getElementById('nombre-ejercicio').innerText;
+    registrarExito(nombre);
     
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    document.getElementById('pantalla-ejercicio').classList.add('hidden');
+}
+
+function registrarExito(nombre) {
     let historial = JSON.parse(localStorage.getItem('historialKine')) || [];
     const fecha = new Date();
     const registro = `${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${nombre}`;
-    
     historial.unshift(registro);
     localStorage.setItem('historialKine', JSON.stringify(historial));
-    
     actualizarVistaHistorial();
-    
-    clearInterval(countdownInterval);
-    document.getElementById('pantalla-ejercicio').classList.add('hidden');
 }
 
 function actualizarVistaHistorial() {
@@ -114,21 +125,15 @@ function actualizarVistaHistorial() {
 }
 
 function borrarHistorial() {
-    if(confirm("¿Seguro que quieres borrar el progreso?")) {
+    if(confirm("¿Borrar historial?")) {
         localStorage.removeItem('historialKine');
         actualizarVistaHistorial();
     }
 }
 
-// 8. Registro del Service Worker (PWA) - Corregido
+// Service Worker (PWA)
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js')
-            .then(function(reg) {
-                console.log('SW registrado');
-            })
-            .catch(function(err) {
-                console.log('SW error', err);
-            });
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
     });
 }
