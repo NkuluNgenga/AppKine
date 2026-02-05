@@ -2,8 +2,9 @@ let timer = null;
 let sessionInterval = null;
 let sistemaActivo = false;
 let rutinaEjercicios = [];
+let ejerciciosPersonalizados = JSON.parse(localStorage.getItem('ejerciciosExtra')) || [];
 
-// 1. Biblioteca de 30 Ejercicios
+// 1. Biblioteca de 30 Ejercicios Base
 const bibliotecaEjercicios = [
     { nombre: "Respiración Diafragmática", info: "Inhale por nariz inflando el abdomen, exhale lento por boca." },
     { nombre: "Expansión Costal", info: "Manos en costillas. Empuje sus manos hacia afuera al inhalar." },
@@ -37,17 +38,43 @@ const bibliotecaEjercicios = [
     { nombre: "Aplauso arriba", info: "Subir brazos y aplaudir sobre la cabeza." }
 ];
 
+// 2. Inicialización
 window.onload = function() {
-    generarPanelSeleccion();
+    actualizarBibliotecaCompleta();
     const intervaloGuardado = localStorage.getItem('intervaloKine');
     if (intervaloGuardado) document.getElementById('intervalo').value = intervaloGuardado;
     actualizarVistaHistorial();
 };
 
-function generarPanelSeleccion() {
+function actualizarBibliotecaCompleta() {
+    const bibliotecaTotal = [...bibliotecaEjercicios, ...ejerciciosPersonalizados];
+    generarPanelSeleccion(bibliotecaTotal);
+}
+
+// 3. Gestión de Ejercicios Personalizados
+function agregarEjercicioManual() {
+    const nombre = document.getElementById('nuevo-nombre').value;
+    const info = document.getElementById('nueva-info').value;
+
+    if (nombre === "" || info === "") {
+        alert("Por favor, completa nombre e instrucción.");
+        return;
+    }
+
+    const nuevoEj = { nombre: nombre, info: info };
+    ejerciciosPersonalizados.push(nuevoEj);
+    localStorage.setItem('ejerciciosExtra', JSON.stringify(ejerciciosPersonalizados));
+    
+    document.getElementById('nuevo-nombre').value = "";
+    document.getElementById('nueva-info').value = "";
+    actualizarBibliotecaCompleta();
+    alert("Ejercicio añadido con éxito.");
+}
+
+function generarPanelSeleccion(lista) {
     const contenedor = document.getElementById('contenedor-checks');
     contenedor.innerHTML = ""; 
-    bibliotecaEjercicios.forEach((ej, index) => {
+    lista.forEach((ej, index) => {
         const fila = document.createElement('div');
         fila.innerHTML = `
             <input type="checkbox" id="ej-${index}" value="${index}" class="ej-check">
@@ -57,7 +84,9 @@ function generarPanelSeleccion() {
     });
 }
 
+// 4. Lógica de Configuración y Sesión
 function guardarYConfigurar() {
+    const bibliotecaTotal = [...bibliotecaEjercicios, ...ejerciciosPersonalizados];
     const checks = document.querySelectorAll('.ej-check:checked');
     const seleccionados = Array.from(checks);
     
@@ -69,33 +98,30 @@ function guardarYConfigurar() {
     const minutosAviso = parseFloat(document.getElementById('intervalo').value);
     if (isNaN(minutosAviso) || minutosAviso <= 0) return alert("Ingresa un tiempo válido.");
 
-    // Cálculo: 7 minutos (420 seg) divididos equitativamente
+    // Cálculo: 7 minutos (420 seg) totales divididos por la cantidad de elegidos
     const tiempoTotalSesion = 420; 
     const tiempoPorEjercicio = Math.floor(tiempoTotalSesion / seleccionados.length);
 
     rutinaEjercicios = seleccionados.map(check => {
         const index = parseInt(check.value);
-        return { ...bibliotecaEjercicios[index], tiempo: tiempoPorEjercicio };
+        return { ...bibliotecaTotal[index], tiempo: tiempoPorEjercicio };
     });
 
     detenerAlarma();
     sistemaActivo = true;
     localStorage.setItem('intervaloKine', minutosAviso);
 
-    // 1. Programar recordatorios futuros
     const ms = minutosAviso * 60 * 1000;
     timer = setInterval(() => { 
         if (sistemaActivo) iniciarSesionCompleta(); 
     }, ms);
 
-    // 2. INICIO INSTANTÁNEO de la primera sesión
     document.getElementById('estado-proxima').innerText = `Estado: ACTIVO (cada ${minutosAviso} min)`;
     iniciarSesionCompleta(); 
 }
 
 function iniciarSesionCompleta() {
     if (!sistemaActivo) return;
-    // Vibración de aviso de inicio
     if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
     ejecutarPasoRutina(0);
 }
@@ -133,9 +159,9 @@ function ejecutarPasoRutina(indice) {
 }
 
 function finalizarSesionTotal() {
-    registrarExito(`Sesión de 7m completada`);
+    registrarExito(`Sesión Completa (7 min)`);
     document.getElementById('pantalla-ejercicio').classList.add('hidden');
-    alert("¡Excelente! Sesión finalizada.");
+    alert("¡Excelente! Has terminado tu sesión.");
 }
 
 function detenerAlarma() {
@@ -146,6 +172,7 @@ function detenerAlarma() {
     document.getElementById('estado-proxima').innerText = "Estado: Detenido";
 }
 
+// 5. Historial y Auxiliares
 function registrarExito(nombre) {
     let historial = JSON.parse(localStorage.getItem('historialKine')) || [];
     const fecha = new Date();
@@ -168,6 +195,7 @@ function borrarHistorial() {
     }
 }
 
+// 6. Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));

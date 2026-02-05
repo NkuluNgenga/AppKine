@@ -1,15 +1,16 @@
 {
-    "short_name": "KineApp",
-    "name": "Asistente de Kinesiología",
-    "icons": [
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/3063/3063176.png",
-        "type": "image/png",
-        "sizes": "512x512"
-      }
-    ],
-    "start_url": "./index.html",
-    "display": "standalone",
-    "theme_color": "#3498db",
-    "background_color": "#ffffff"
-  }
+  "short_name": "KineAsist",
+  "name": "KineAsist: Asistente de Rehabilitación",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "1024x1024",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "theme_color": "#27ae60",
+  "background_color": "#ffffff"
+}

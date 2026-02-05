@@ -18,8 +18,15 @@
             <label>Avisarme cada (minutos):</label>
             <input type="number" id="intervalo" value="120">
             
+            <div id="nuevo-ejercicio-form" style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-radius: 8px;">
+                <p><strong>+ Agregar Ejercicio Personalizado:</strong></p>
+                <input type="text" id="nuevo-nombre" placeholder="Nombre (ej: Pesas 1kg)">
+                <input type="text" id="nueva-info" placeholder="Instrucción (ej: Subir y bajar...)" style="margin-top:5px;">
+                <button onclick="agregarEjercicioManual()" style="background-color: #3498db; padding: 8px; margin-top: 8px; font-size: 0.9rem;">Añadir a la lista</button>
+            </div>
+
             <div id="panel-seleccion" style="margin-top: 15px; text-align: left;">
-                <p><strong>Elegí exactamente 4 ejercicios:</strong></p>
+                <p><strong>Elegí de 1 a 4 ejercicios:</strong></p>
                 <div id="contenedor-checks" style="max-height: 250px; overflow-y: auto; border: 2px solid #3498db; padding: 5px; border-radius: 8px; background: #fff;">
                     </div>
             </div>
@@ -29,20 +36,20 @@
             <div id="estado-proxima"></div>
         </div>
 
-        <div id="pantalla-ejercicio" class="hidden card-alerta">
-            <h2 id="nombre-ejercicio"></h2>
-            <p id="instrucciones"></p>
-            <div id="cronometro-display">00:30</div>
-            <button onclick="finalizarEjercicio()" class="btn-hecho">¡Ejercicio Completado!</button>
+        <div id="pantalla-ejercicio" class="card-alerta hidden">
+            <h2 id="nombre-ejercicio">Nombre</h2>
+            <p id="instrucciones">Instrucciones aquí...</p>
+            <div id="cronometro-display">0:00</div>
+            <button onclick="finalizarSesionTotal()" style="background-color: #2c3e50;">Terminar Ahora</button>
         </div>
 
         <div class="historial-section">
-            <h3>Mi Progreso Hoy</h3>
-            <ul id="lista-historial">
-                </ul>
-            <button onclick="borrarHistorial()" class="btn-borrar">Limpiar Historial</button>
+            <h3>Tu Progreso</h3>
+            <ul id="lista-historial"></ul>
+            <button class="btn-borrar" onclick="borrarHistorial()">Borrar Historial</button>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
